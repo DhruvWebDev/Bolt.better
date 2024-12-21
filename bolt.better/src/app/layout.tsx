@@ -9,6 +9,8 @@ import {
   UserButton
 } from '@clerk/nextjs'
 import {dark, neobrutalism} from "@clerk/themes"
+import Header from "@/components/static-component/header"
+import Footer from "@/components/static-component/footer"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,20 +34,16 @@ export default function RootLayout({
   return (
     <ClerkProvider
     appearance={{
-      baseTheme:  [dark],
+      baseTheme:  [dark, neobrutalism],
     }}
     publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     afterSignOutUrl="/"
     >
     <html lang="en">
       <body>
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+        <Header/>
         {children}
+        <Footer />
       </body>
     </html>
   </ClerkProvider>

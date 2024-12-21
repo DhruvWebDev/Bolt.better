@@ -1,3 +1,4 @@
+'use client'
 import { WebContainer } from '@webcontainer/api';
 import React, { useState, useEffect } from 'react';
 
