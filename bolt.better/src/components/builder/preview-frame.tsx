@@ -1,5 +1,6 @@
 'use client'
-import { WebContainer } from '@webcontainer/api';
+import { PreviewFrameProps } from '@/types/preview';
+import { Globe, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 /**
@@ -8,53 +9,52 @@ import React, { useState, useEffect } from 'react';
  * Wait for the `server-ready` event.
  * Finally, setUrl(url) and showcase the website to the user by embedding the URL in an iframe.
  */
-const PreviewFrame = () => {
-  const [url, setUrl] = useState(null);
+export function PreviewFrame({ files, webContainer }: PreviewFrameProps) {
+  // In a real implementation, this would compile and render the preview
+  const [url, setUrl] = useState("");
+  const [port, setPort] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function main() {
-      try {
-        const installProcess = await WebContainer.spawn('npm', ['install']);
-        console.log('Dependencies installed:', installProcess);
+  async function main() {
+    setIsLoading(true);
+    const installProcess = await webContainer.spawn('npm', ['install']);
 
-        const runProcess = await WebContainer.spawn('npm', ['run', 'dev']);
-        console.log('Development server started:', runProcess);
-
-        WebContainer.on('server-ready', (port, readyUrl) => {
-          console.log('Server is ready on port:', port);
-          console.log('Preview URL:', readyUrl);
-          setUrl(readyUrl);
-          setIsLoading(false);
-        });
-      } catch (error) {
-        console.error('Error setting up the web container:', error);
-        setIsLoading(false);
+    installProcess.output.pipeTo(new WritableStream({
+      write(data) {
+        console.log(data);
       }
-    }
+    }));
 
-    main();
-  }, []);
+    await webContainer.spawn('npm', ['run', 'dev']);
 
+    // Wait for `server-ready` event
+    webContainer.on('server-ready', (port, url) => {
+      // ...
+      setPort(port);
+      console.log(url)
+      setUrl(url);
+      setIsLoading(false);
+    });
+  }
+
+  useEffect(() => {
+    main()
+  }, [])
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Preview</h2>
-      {isLoading ? (
-        <p>Loading the preview... Please wait.</p>
-      ) : url ? (
-        <iframe
-          src={url}
-          style={{
-            width: '100%',
-            height: '500px',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-          }}
-          title="Website Preview"
-        />
-      ) : (
-        <p>Failed to load the preview. Please check the console for details.</p>
-      )}
+    <div className="h-[60vh] flex flex-col bg-zinc-900 rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border-b border-zinc-700">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-md flex-1">
+          <Globe className="w-4 h-4 text-zinc-400" />
+          <span className="text-zinc-400 text-sm">{url && url}</span>
+          <span className="text-white text-sm">{port && port}</span>
+        </div>
+        <button className="p-2 hover:bg-zinc-700 rounded-md transition-colors">
+          <RefreshCw className="w-4 h-4 text-zinc-400" />
+        </button>
+      </div>
+      <div className="flex-1 bg-white">
+        {/* Preview iframe will be rendered here */}
+      </div>
     </div>
   );
 };

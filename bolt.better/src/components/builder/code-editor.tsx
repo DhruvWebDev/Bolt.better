@@ -2,25 +2,21 @@ import React from 'react';
 import Editor from '@monaco-editor/react';
 
 
-const SampleData = `// Welcome to Bolt Code Editor
-function greeting() {
-  console.log("Hello from Bolt!");
-}`;
-export function CodeEditor() {
-  // if (!file) {
-  //   return (
-  //     <div className="h-full flex items-center justify-center text-gray-400">
-  //       Select a file to view its contents
-  //     </div>
-  //   );
-  // }
+export function CodeEditor(file) {
+  if (!file) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-400">
+        Select a file to view its contents
+      </div>
+    );
+  }
 
   return (
     <Editor
       height="100%"
       defaultLanguage="typescript"
       theme="vs-dark"
-      value={SampleData}
+      value={file.content || 'Hey there is some error in loading the file'}
       options={{
         readOnly: true,
         minimap: { enabled: false },

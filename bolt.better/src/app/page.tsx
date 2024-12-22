@@ -95,7 +95,7 @@ export default function Page() {
                 >
                   <a href={project.href}>{project.title}</a>
                 </Button>
-              </motion.div>
+              </motion.div   >
             ))}
           </motion.div>
         </div>
